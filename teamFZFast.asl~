@@ -3,7 +3,7 @@
 			?grid_size(A,B);
 			+right(A);
 			+down(B);
-			+r;
+			+right;
 			do(skip);
 			do(skip);
 			do(skip).
@@ -13,21 +13,13 @@
 +step(X): moves_per_round(6) <- !go;!go.
 
 
-@label[atomic] +!atomStep(X,Y): true <-
-	myLib.myIA(X, Y, R);
-	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
-	do(R).
-
 +step(I): needHelp(X,Y)
 <-
 	.println("ragujemragujemragujemragujemragujemragujemragujemragujemragujemragujemv ");
-	//!atomStep(X,Y);
-	//!atomStep(X,Y);
-	//!atomStep(X,Y);
 	!move_to(X,Y);
 	!move_to(X,Y);
-	!move_to(X,Y);
-	.abolish(needHelp(_,_)).
+	!move_to(X,Y).
+	//.abolish(needHelp(_,_)).
 
 +step(I): moves_per_round(3) <- !go.
  
@@ -69,8 +61,8 @@
 	do(skip).
 
 
-+!go: r & pos(A,B) & right(C) & A<C-1 <- do(right);do(right);do(right).
-+!go: r <- -r;
++!go: right & pos(A,B) & right(C) & A<C-1 <- do(right);do(right);do(right).
++!go: right <- -right;
 			   +left;
 			   do(up);
 			   do(left);
@@ -80,7 +72,7 @@
 							   do(left);
 							   do(left).	
 +!go: left <-  -left;
-			   +r;
+			   +right;
 			   do(up);
 			   do(right);
 			   do(right).

@@ -3,7 +3,7 @@
 			?grid_size(A,B);
 			+right(A);
 			+down(B);
-			+right;
+			+r;
 			do(skip).
 
 +!findClosest(CurrMin, Min, MinX, MinY): map(X,Y,_) & not (tested(X,Y)) <-
@@ -122,19 +122,19 @@
 	do(pick).
 
 
-+!go: right & pos(A,B) & right(C) & A<C-1 <- do(right).
++!go: r & pos(A,B) & right(C) & A<C-1 <- do(right).
 
 +!go: left & pos(A,B) & A>0 <- do(left).
 
 +!go: left <-  -left;
 			   +down(6);
 			   do(down).
-+!go: right <- -right;
++!go: r <- -r;
 			   +down(6);
 			   do(down).
 
 
-+!go: down(1) & pos(A,B) & A==0 <- -down(1);+right;do(down).
++!go: down(1) & pos(A,B) & A==0 <- -down(1);+r;do(down).
 +!go: down(1) & pos(A,B) & right(C) & A==C-1 <- -down(1);+left;do(down).
 			   
 +!go: down(X) & X\==1 <- .println(X);-down(X);+down(X-1);do(down).

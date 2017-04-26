@@ -127,7 +127,7 @@ public class AStar {
      * @param eX - destination point X
      * @param eY - destination point Y
      */
-    public static String run(int sX, int sY, int eX, int eY, int sizeX, int sizeY) {
+    public static String run(int sX, int sY, int eX, int eY, int sizeX, int sizeY, List<int[]> blocked) {
         grid = new Node[sizeY][sizeX];  // Create grid
         setStartNode(sY, sX);           // Set start position
         setEndNode(eY, eX);             // Set End Location
@@ -149,6 +149,12 @@ public class AStar {
         }
 
         grid[sY][sX].finalCost = 0;
+
+        for (int[] elem : blocked) {  // Set blocked nodes
+            if (elem.length == 2) {
+                setBlocked(elem[1], elem[0]);
+            }
+        }
 
         //Display initial map
         /*
@@ -181,9 +187,9 @@ public class AStar {
             Node current = grid[endY][endX];
 
             if (current.parent != null) {
-            while ((current.parent).parent != null) {
-                current = current.parent;
-            }
+                while ((current.parent).parent != null) {
+                    current = current.parent;
+                }
             }
 
             //System.out.println(" -> " + current);

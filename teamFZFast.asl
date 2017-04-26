@@ -1,4 +1,69 @@
 
++!remMap(X,Y,Item): map(X,Y,Item) <- .abolish(map(X,Y,Item)).
++!remMap(_,_,_).
+
++!updateGold(X,Y):
+	gold(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	+map(X,Y, gold);
+	.send(A, tell, map(X,Y, gold));
+	.send(B, tell, map(X,Y, gold)).
+
++!updateGold(X,Y):
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	.abolish(map(X,Y, gold));
+	.send(A, achieve, remMap(X,Y, gold));
+	.send(B, achieve, remMap(X,Y, gold)).
+
++!updateWood(X,Y):
+	wood(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	+map(X,Y, wood);
+	.send(A, tell, map(X,Y, wood));
+	.send(B, tell, map(X,Y, wood)).
+
++!updateWood(X,Y):
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	.abolish(map(X,Y, wood));
+	.send(A, achieve, remMap(X,Y, wood));
+	.send(B, achieve, remMap(X,Y, wood)).
+
++!updateObstacle(X,Y):
+	obstacle(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	+map(X,Y, obstacle);
+	.send(A, tell, map(X,Y, obstacle));
+	.send(B, tell, map(X,Y, obstacle)).
+
++!updateObstacle(_,_).
+
++!updateMap: pos(X,Y)
+<-
+	for( .range(I,-1,1)){
+		for( .range(J,-1,1)){
+			!updateGold(X+I,Y+J);
+			!updateWood(X+I,Y+J);
+			!updateObstacle(X+I,Y+J);
+		}
+	}.
+
+
+
  +step(0) <- .println("START");
 			?grid_size(A,B);
 			+right(A);
@@ -47,8 +112,12 @@
 <-
 	.println("ragujemragujemragujemragujemragujemragujemragujemragujemragujemragujemv ");
 	!atomStep(X,Y);
+	!updateMap;
 	!atomStep(X,Y);
-	!atomStep(X,Y).
+	!updateMap;
+	!atomStep(X,Y);
+	!updateMap.
+
 	//!move_to(X,Y);
 	//!move_to(X,Y);
 	//!move_to(X,Y);
@@ -103,19 +172,34 @@
 	do(skip).
 
 
-+!go: r & pos(A,B) & right(C) & A<C-1 <- do(right);do(right);do(right).
++!go: r & pos(A,B) & right(C) & A<C-1 <- 
+do(right);
+!updateMap;
+do(right);
+!updateMap;
+do(right);
+!updateMap.
 +!go: r <- -r;
 			   +left;
 			   do(up);
+			   !updateMap;
 			   do(left);
-			   do(left).	
+			   !updateMap;
+			   do(left);
+			   !updateMap.	
 			   
 +!go: left & pos(A,B) & A>0 <- do(left);
+								!updateMap;
 							   do(left);
-							   do(left).	
+							   !updateMap;
+							   do(left);
+							   !updateMap.	
 +!go: left <-  -left;
 			   +r;
 			   do(up);
+			   !updateMap;
 			   do(right);
-			   do(right).
+			   !updateMap;
+			   do(right);
+			   !updateMap.
 

@@ -30,19 +30,74 @@
 +!dist(X1,Y1, X2,Y2, D): true <-
 	D = math.sqrt((X1-X2)*(X1-X2) + (Y1-Y2)*(Y1-Y2)).
 
-
+/*
 +!readyToHelp(X,Y): pos(X,Y) <-
 	.send(A, achieve, clearHelp(X,Y));
 	.send(B, achieve, clearHelp(X,Y)).
 
 +!readyToHelp(X,Y).
+*/
 
-
+/*
 +!updateGold(X,Y): gold(X,Y) <- +map(X,Y, gold).
 +!updateGold(X,Y): true <- -map(X,Y, gold).
 
 +!updateWood(X,Y): wood(X,Y) <- +map(X,Y, wood).
 +!updateWood(X,Y): true <- -map(X,Y, wood).
+*/
+
++!remMap(X,Y,Item): map(X,Y,Item) <- .abolish(map(X,Y,Item)).
++!remMap(_,_,_).
+
++!updateGold(X,Y):
+	gold(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	+map(X,Y, gold);
+	.send(A, tell, map(X,Y, gold));
+	.send(B, tell, map(X,Y, gold)).
+
++!updateGold(X,Y):
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	.abolish(map(X,Y, gold));
+	.send(A, achieve, remMap(X,Y, gold));
+	.send(B, achieve, remMap(X,Y, gold)).
+
++!updateWood(X,Y):
+	wood(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	+map(X,Y, wood);
+	.send(A, tell, map(X,Y, wood));
+	.send(B, tell, map(X,Y, wood)).
+
++!updateWood(X,Y):
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	.abolish(map(X,Y, wood));
+	.send(A, achieve, remMap(X,Y, wood));
+	.send(B, achieve, remMap(X,Y, wood)).
+
++!updateObstacle(X,Y):
+	obstacle(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	+map(X,Y, obstacle);
+	.send(A, tell, map(X,Y, obstacle));
+	.send(B, tell, map(X,Y, obstacle)).
+
++!updateObstacle(_,_).
 
 +!updateMap(X,Y): true
 <-
@@ -50,6 +105,7 @@
 		for( .range(J,-3,3)){
 			!updateGold(X+I,Y+J);
 			!updateWood(X+I,Y+J);
+			!updateObstacle(X+I,Y+J);
 		}
 	}.
 
@@ -99,6 +155,15 @@
 	.send(A, tell, map(X,Y,Item));
 	.send(B, tell, map(X,Y,Item)).
 
+
++!atomStep(X,Y): pos(X,Y) <- do(skip).
+
+@atstepslow[atomic] +!atomStep(X,Y): true <-
+	myLib.myIA(X, Y, R);
+	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
+	do(R).
+
+
 +!move_to(X,Y):
 	pos(X,Y) &
 	depot(X,Y) &
@@ -107,6 +172,7 @@
 <-
 	do(drop).
 
+/*
 +!move_to(Item_X,Item_Y):
 	pos(X,Y) &
 	X < Item_X
@@ -130,7 +196,7 @@
 	Y > Item_Y
 <-
 	do(up).
-
+*/
 
 @atmove[atomic] +!move_to(Item_X,Item_Y):
 	pos(X,Y) &
@@ -157,7 +223,11 @@
 	.send(B, tell, needHelp(X,Y));
 	do(skip).
 
-
+@atmt2[atomic] +!move_to(X,Y):
+	true
+<-
+	myLib.myIA(X, Y, R);
+	do(R).
 
 
 

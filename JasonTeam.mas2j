@@ -11,7 +11,7 @@ MAS miners {
         aMiddle teamFZMiddle;
         aFast teamFZFast;
 		
-        bSlow teamFZSlow;
-        bMiddle teamFZMiddle;
-        bFast teamFZFast;
+        bSlow teamMock;
+        bMiddle teamMock;
+        bFast teamMock;
 }

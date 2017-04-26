@@ -6,6 +6,15 @@
 			+r;
 			do(skip).
 
++!findClosest(CurrMin, Min, MinX, MinY): 
+	carrying_capacity(C) &
+	((carrying_gold(G) & C == G) |  
+	(carrying_wood(W) & C == W))
+ <-
+ 	?depot(MinX, MinY);
+ 	Min = 42.
+
+
 +!findClosest(CurrMin, Min, MinX, MinY): map(X,Y,_) & not (tested(X,Y)) <-
 	+tested(X,Y);
 	?pos(MyX,MyY);
@@ -21,6 +30,12 @@
 +!dist(X1,Y1, X2,Y2, D): true <-
 	D = math.sqrt((X1-X2)*(X1-X2) + (Y1-Y2)*(Y1-Y2)).
 
+
++!readyToHelp(X,Y): pos(X,Y) <-
+	.send(A, achieve, clearHelp(X,Y));
+	.send(B, achieve, clearHelp(X,Y)).
+
++!readyToHelp(X,Y).
 
 
 +!updateGold(X,Y): gold(X,Y) <- +map(X,Y, gold).
@@ -84,6 +99,13 @@
 	.send(A, tell, map(X,Y,Item));
 	.send(B, tell, map(X,Y,Item)).
 
++!move_to(X,Y):
+	pos(X,Y) &
+	depot(X,Y) &
+	((carrying_gold(G) & G > 0) |
+	(carrying_wood(W) & W > 0))
+<-
+	do(drop).
 
 +!move_to(Item_X,Item_Y):
 	pos(X,Y) &
@@ -109,6 +131,20 @@
 <-
 	do(up).
 
+
+@atmove[atomic] +!move_to(Item_X,Item_Y):
+	pos(X,Y) &
+	ally(X,Y) &
+	X == Item_X &
+	Y == Item_Y	&
+	friend(A) &
+	friend(B) &
+	A \== B 
+<-
+	do(pick);
+	.send(A, achieve, clearHelp(X,Y));
+	.send(B, achieve, clearHelp(X,Y)).
+
 +!move_to(Item_X,Item_Y):
 	pos(X,Y) &
 	X == Item_X &
@@ -119,7 +155,10 @@
 <-
 	.send(A, tell, needHelp(X,Y));
 	.send(B, tell, needHelp(X,Y));
-	do(pick).
+	do(skip).
+
+
+
 
 
 +!go: r & pos(A,B) & right(C) & A<C-1 <- do(right).
@@ -129,13 +168,31 @@
 +!go: left <-  -left;
 			   +down(6);
 			   do(down).
-+!go: r <- -r;
-			   +down(6);
-			   do(down).
++!go: r <- 
+-r;
++down(6);
+do(down).
 
 
-+!go: down(1) & pos(A,B) & A==0 <- -down(1);+r;do(down).
-+!go: down(1) & pos(A,B) & right(C) & A==C-1 <- -down(1);+left;do(down).
++!go: down(1) & pos(A,B) & A==0 <- 
+	-down(1);
+	+r;
+	do(down).
++!go: down(1) & pos(A,B) & right(C) & A==C-1 
+<- 
+	-down(1);
+	+left;
+	do(down).
+
++!go: down(1)
+<-
+	-down(1);
+	+left;
+	do(left).
 			   
-+!go: down(X) & X\==1 <- .println(X);-down(X);+down(X-1);do(down).
++!go: down(X) & X\==1 
+<- 
+	-down(X);
+	+down(X-1);
+	do(down).
 

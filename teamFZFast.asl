@@ -8,34 +8,68 @@
 			do(skip);
 			do(skip).
 
-+step(X): shoes(A,B) & pos(A,B) <- do(pick).
+//+step(X): shoes(A,B) & pos(A,B) <- do(pick).
 
-+step(X): moves_per_round(6) <- !go;!go.
+//+step(X): moves_per_round(6) <- !go;!go.
 
++!atomStep(X,Y): pos(X,Y) <- do(skip).
 
 @label[atomic] +!atomStep(X,Y): true <-
 	myLib.myIA(X, Y, R);
 	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
 	do(R).
 
+
++!clearHelp(X,Y): true <-
+	.abolish(needHelp(_,_)).
+
++!clearHelp(_,_).
+
+/*
++!checkPosition(X,Y): 
+	pos(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+	<- 
+	.abolish(needHelp(X,Y)).
+
++!checkPosition(_,_).
+*/
+
+
++step(I): needHelp(X,Y) & ally(X,Y) & pos(X,Y)
+<-
+	do(drop).
+
+
 +step(I): needHelp(X,Y)
 <-
 	.println("ragujemragujemragujemragujemragujemragujemragujemragujemragujemragujemv ");
-	//!atomStep(X,Y);
-	//!atomStep(X,Y);
-	//!atomStep(X,Y);
-	!move_to(X,Y);
-	!move_to(X,Y);
-	!move_to(X,Y);
-	.abolish(needHelp(_,_)).
+	!atomStep(X,Y);
+	!atomStep(X,Y);
+	!atomStep(X,Y).
+	//!move_to(X,Y);
+	//!move_to(X,Y);
+	//!move_to(X,Y);
+	//!checkPosition(X,Y).
 
-+step(I): moves_per_round(3) <- !go.
+
+/*
++do_need_help[source(Agent)]: true
+<-
+	+needHelp(_,_,Agent).
+
++dont_need_help[source(Agent)]: true
+<-
+	.abolish(needHelp(_,_,Agent)).
+*/
+
++step(I): moves_per_round(3) <- 
+.println("idem si svoje ...........................................................................");
+!go.
  
  //do(right);do(right);do(right);do(left);do(left);do(left).
- 
-
-
-
 
 +!move_to(Item_X,Item_Y):
 	pos(X,Y) &

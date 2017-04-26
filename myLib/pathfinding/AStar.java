@@ -18,7 +18,7 @@ public class AStar {
         int x, y;
         Node parent;
 
-        Node(int x, int y) {
+        Node(int y, int x) {
             this.x = x;
             this.y = y;
         }
@@ -180,11 +180,11 @@ public class AStar {
         if (closed[endY][endX]) {  // Trace back the path
             Node current = grid[endY][endX];
 
-            //if (current.parent != null) {
+            if (current.parent != null) {
             while ((current.parent).parent != null) {
                 current = current.parent;
             }
-            //}
+            }
 
             //System.out.println(" -> " + current);
             // Check direction

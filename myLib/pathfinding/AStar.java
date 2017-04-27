@@ -7,12 +7,12 @@ import java.util.*;
  * Blocked Nodes are just null Node values in grid
  */
 public class AStar {
-    private static final int COST = 10;
+    private final int COST = 10;
 
     /**
      * Single node/cell of grid representation
      */
-    static class Node{
+    class Node{
         int heuristicCost = 0;  // Heuristic cost
         int finalCost = 0;      // G + H
         int x, y;
@@ -29,18 +29,18 @@ public class AStar {
         }
     }
 
-    private static Node[][] grid;
-    private static int startX, startY;
-    private static int endY, endX;
+    private Node[][] grid;
+    private int startX, startY;
+    private int endY, endX;
 
-    private static PriorityQueue<Node> open;  //  Set of nodes to be evaluated
-    private static boolean closed[][];        // Set of nodes already evaluated
+    private PriorityQueue<Node> open;  //  Set of nodes to be evaluated
+    private boolean closed[][];        // Set of nodes already evaluated
 
 
     /**
      * Set unreachable node
      */
-    private static void setBlocked(int y, int x) {
+    private void setBlocked(int y, int x) {
         grid[y][x] = null;  // Unreachable node
     }
 
@@ -48,7 +48,7 @@ public class AStar {
     /**
      * Set coordinates of starting node
      */
-    private static void setStartNode(int y, int x) {
+    private void setStartNode(int y, int x) {
         startY = y;
         startX = x;
     }
@@ -57,7 +57,7 @@ public class AStar {
     /**
      * Set coordinates of destination node
      */
-    private static void setEndNode(int y, int x){
+    private void setEndNode(int y, int x){
         endY = y;
         endX = x;
     }
@@ -66,7 +66,7 @@ public class AStar {
     /**
      * Recalculate price if possible
      */
-    private static void checkAndUpdateCost(Node current, Node next, int cost){
+    private void checkAndUpdateCost(Node current, Node next, int cost){
         if (next != null && !closed[next.y][next.x]) {     // Not blocked & yet checked
             int auxFinalCost = next.heuristicCost + cost;
 
@@ -84,7 +84,7 @@ public class AStar {
     /**
      * A Star calculation
      */
-    private static void search(){
+    private void search(){
         open.add(grid[startY][startX]);  // Add the start location to open list.
         Node current;
 
@@ -127,7 +127,7 @@ public class AStar {
      * @param eX - destination point X
      * @param eY - destination point Y
      */
-    public static String run(int sX, int sY, int eX, int eY, int sizeX, int sizeY, List<int[]> blocked) {
+    public String run(int sX, int sY, int eX, int eY, int sizeX, int sizeY, List<int[]> blocked) {
         grid = new Node[sizeY][sizeX];  // Create grid
         setStartNode(sY, sX);           // Set start position
         setEndNode(eY, eX);             // Set End Location

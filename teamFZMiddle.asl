@@ -1,6 +1,6 @@
 
 // tento radek staci zakomentovat a bude se spoustet i Middle
-+step(_): true <- do(skip);do(skip).
+//+step(_): true <- do(skip);do(skip).
 // k chybe dochazi pri volani myIA v jednom z moveTo (null pointer ex v A*)
 
 

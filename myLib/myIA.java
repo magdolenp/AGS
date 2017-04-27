@@ -12,7 +12,7 @@ import jason.bb.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static myLib.pathfinding.AStar.run;
+import myLib.pathfinding.AStar;
 
 public class myIA extends DefaultInternalAction {
     // private Logger logger = Logger.getLogger("jasonTeamSimLocal.mas2j." + MiningPlanet.class.getName());
@@ -32,7 +32,7 @@ public class myIA extends DefaultInternalAction {
         eX = Integer.parseInt(args[0].toString());  // End X
         eY = Integer.parseInt(args[1].toString());  // End Y
 
-        while(i.hasNext()) {
+        while (i.hasNext()) {
             Literal element = (Literal) i.next();
             if (element.getFunctor().equals("right"))  // Grid size X
                 sizeX = Integer.parseInt(element.getTerm(0).toString());
@@ -55,8 +55,20 @@ public class myIA extends DefaultInternalAction {
             }
         }
 
+        System.out.println(" >> A STAR <<");
+        System.out.println(sX);
+        System.out.println(sY);
+        System.out.println(eX);
+        System.out.println(eY);
+        System.out.println(sizeX);
+        System.out.println(sizeY);
+        for (int k = 0; k < blocked.size(); k++) {
+            System.out.println("BLOCKED" + blocked.get(k));        
+        }
+
         // start X, start Y, end X, end Y, map size X, map size Y
-        String direction = run(sX, sY, eX, eY, sizeX, sizeY, blocked);
+        AStar aStar = new AStar();
+        String direction = aStar.run(sX, sY, eX, eY, sizeX, sizeY, blocked);
         Atom result = new Atom(direction);
         un.unifies(result, args[2]);
 

@@ -5,35 +5,103 @@
 
 
 
-+step(0) <- .println("START");
-			?grid_size(A,B);
-			+right(A);
-			+down(B);
-			+r;
-			do(skip);do(skip).
++step(0) 
+<- 
+	.println("START");
+	?grid_size(A,B);
+	+right(A);
+	+down(B);
+	+r;
+	do(skip);
+	do(skip).
+
++step(I): 
+	pos(X,Y)
+<-
+	!updateMap(X,Y);
+	!findClosest(9999, M, Item_X, Item_Y);
+	if (Item_X > -1 & Item_Y > -1) {
+		.print("MOVETO");
+		!move_to(Item_X, Item_Y)
+	}
+	else {
+		.print("GOING");
+		!go
+	}.
+
++step(I): 
+	moves_per_round(1) 
+<- 
+	!go.
+
 
 +!findClosest(CurrMin, Min, MinX, MinY): 
 	carrying_capacity(C) &
-	((carrying_gold(G) & C == G) |  
-	(carrying_wood(W) & C == W))
- <-
+	((carrying_gold(G) & C == G) | (carrying_wood(W) & C == W))
+<-
  	?depot(MinX, MinY);
  	Min = 42.
 
-
-+!findClosest(CurrMin, Min, MinX, MinY): map(X,Y,_) & not (tested(X,Y)) <-
++!findClosest(CurrMin, Min, MinX, MinY): 
+	map(X,Y,Item) & 
+	carrying_gold(G) &
+	carrying_wood(W) &
+	((Item == gold & G > 0 & W == 0) | (Item == wood & W > 0 & G == 0)) &
+	not(tested(X,Y)) 
+<-
 	+tested(X,Y);
 	?pos(MyX,MyY);
 	!dist(MyX, MyY, X,Y, CalcMin);
 	.print("At: ",  X, ":", Y, " Dist: ", CalcMin);
 	/*CalcMin = Y;*/
 	!findClosest(CalcMin, NewMin, NMX, NMY);
-	if (NewMin < CalcMin) {Min = NewMin; MinX = NMX; MinY = NMY}
-	else {Min = CalcMin; MinX = X; MinY = Y}.
-	
-+!findClosest(CurrMin, Min, MinX, MinY): true <- Min = CurrMin; MinX = -1; MinY = -1; .abolish(tested(_,_)).
+	if (NewMin < CalcMin) {
+		Min = NewMin; 
+		MinX = NMX; 
+		MinY = NMY
+	}
+	else {
+		Min = CalcMin; 
+		MinX = X; 
+		MinY = Y
+	}.
 
-+!dist(X1,Y1, X2,Y2, D): true <-
++!findClosest(CurrMin, Min, MinX, MinY): 
+	map(X,Y,Item) & 
+	(Item == gold | Item == wood) & 
+	carrying_gold(0) &
+	carrying_wood(0) &
+	not(tested(X,Y)) 
+<-
+	+tested(X,Y);
+	?pos(MyX,MyY);
+	!dist(MyX, MyY, X,Y, CalcMin);
+	.print("At: ",  X, ":", Y, " Dist: ", CalcMin);
+	/*CalcMin = Y;*/
+	!findClosest(CalcMin, NewMin, NMX, NMY);
+	if (NewMin < CalcMin) {
+		Min = NewMin; 
+		MinX = NMX; 
+		MinY = NMY
+	}
+	else {
+		Min = CalcMin; 
+		MinX = X; 
+		MinY = Y
+	}.
+	
++!findClosest(CurrMin, Min, MinX, MinY): 
+	true 
+<- 
+	Min = CurrMin; 
+	MinX = -1; 
+	MinY = -1; 
+	.abolish(tested(_,_)).
+
+
++!dist(X1,Y1, X2,Y2, D): 
+	true 
+<-
 	D = math.sqrt((X1-X2)*(X1-X2) + (Y1-Y2)*(Y1-Y2)).
 
 /*
@@ -52,90 +120,94 @@
 +!updateWood(X,Y): true <- -map(X,Y, wood).
 */
 
-+!remMap(X,Y,Item): map(X,Y,Item) <- .abolish(map(X,Y,Item)).
++!remMap(X,Y,Item): 
+	map(X,Y,Item) 
+<- 
+	.abolish(map(X,Y,Item)).
+
 +!remMap(_,_,_).
+
 
 +!updateGold(X,Y):
 	gold(X,Y) &
 	friend(A) &
 	friend(B) &
 	A \== B 
-	<- 
+<- 
 	+map(X,Y, gold);
 	.send(A, tell, map(X,Y, gold));
 	.send(B, tell, map(X,Y, gold)).
 
 +!updateGold(X,Y):
+	map(X,Y, gold) &
 	friend(A) &
 	friend(B) &
 	A \== B 
-	<- 
+<- 
 	.abolish(map(X,Y, gold));
 	.send(A, achieve, remMap(X,Y, gold));
 	.send(B, achieve, remMap(X,Y, gold)).
+
++!updateGold(_,_).
+
 
 +!updateWood(X,Y):
 	wood(X,Y) &
 	friend(A) &
 	friend(B) &
 	A \== B 
-	<- 
+<- 
 	+map(X,Y, wood);
 	.send(A, tell, map(X,Y, wood));
 	.send(B, tell, map(X,Y, wood)).
 
 +!updateWood(X,Y):
+	map(X,Y, wood) &
 	friend(A) &
 	friend(B) &
 	A \== B 
-	<- 
+<- 
 	.abolish(map(X,Y, wood));
 	.send(A, achieve, remMap(X,Y, wood));
 	.send(B, achieve, remMap(X,Y, wood)).
+
++!updateWood(_,_).
+
 
 +!updateObstacle(X,Y):
 	obstacle(X,Y) &
 	friend(A) &
 	friend(B) &
 	A \== B 
-	<- 
+<- 
 	+map(X,Y, obstacle);
 	.send(A, tell, map(X,Y, obstacle));
 	.send(B, tell, map(X,Y, obstacle)).
 
 +!updateObstacle(_,_).
 
-+!updateMap(X,Y): true
+
++!updateMap(X,Y): 
+	true
 <-
-	for( .range(I,-3,3)){
-		for( .range(J,-3,3)){
+	for( .range(I,-1,1)){
+		for( .range(J,-1,1)){
 			!updateGold(X+I,Y+J);
 			!updateWood(X+I,Y+J);
 			!updateObstacle(X+I,Y+J);
 		}
 	}.
 
-+step(I): pos(X,Y)
-<-
-	!updateMap(X,Y);
-	!findClosest(9999, M, Item_X, Item_Y);
-	if (Item_X > -1 & Item_Y > -1) {.print("MOVETO");!move_to(Item_X, Item_Y)}
-	else{.print("GOING");!go}.
-	//findClosest;
-	//move_to.
-	
 
-+step(I): moves_per_round(1) 
-<- 
-	!go.
-
-
-+gold(X,Y): true
++gold(X,Y): 
+	true
 <- 
 	+map(X,Y,gold);
 	!inform(X,Y,gold).  
 
-+wood(X,Y): true
+
++wood(X,Y): 
+	true
 <- 
 	+map(X,Y,wood);
 	!inform(X,Y,wood).
@@ -152,7 +224,6 @@
 // 	+map(X,Y,shoes);
 // 	!inform(X,Y,shoes).
 
-
 +!inform(X, Y, Item):
 	friend(A) &
 	friend(B) &
@@ -162,9 +233,14 @@
 	.send(B, tell, map(X,Y,Item)).
 
 
-+!atomStep(X,Y): pos(X,Y) <- do(skip).
++!atomStep(X,Y): 
+	pos(X,Y) 
+<- 
+	do(skip).
 
-@atstepslow[atomic] +!atomStep(X,Y): true <-
+@atstepslow[atomic] +!atomStep(X,Y): 
+	true 
+<-
 	myLib.myIA(X, Y, R);
 	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
 	do(R).
@@ -227,51 +303,106 @@
 <-
 	.send(A, tell, needHelp(X,Y));
 	.send(B, tell, needHelp(X,Y));
-	do(skip);do(skip).
+	do(skip);
+	do(skip).
 
 @atmt2[atomic] +!move_to(X,Y):
 	true
 <-
 	myLib.myIA(X, Y, R);
 	do(R);
+
 	?pos(X2,Y2);
-	myLib.myIA(X2, Y2, R2);
-	do(R).
+	if(X2 == X & Y2 == Y){
+		?friend(A);
+		?friend(B);
+		.send(A, tell, needHelp(X,Y));
+		.send(B, tell, needHelp(X,Y));
+		do(skip);
+	}
+	else {
+		myLib.myIA(X, Y, R2);
+		do(R2)
+	}
+
+	?pos(X3,Y3);
+	if(X3 == X & Y3 == Y){
+		?friend(A);
+		?friend(B);
+		.send(A, tell, needHelp(X,Y));
+		.send(B, tell, needHelp(X,Y));
+	}.
 
 
++!go: 
+	r & 
+	pos(A,B) & 
+	right(C) & 
+	A<C-1 
+<- 
+	do(right);
+	do(right).
 
-+!go: r & pos(A,B) & right(C) & A<C-1 <- do(right);do(right).
++!go: 
+	left & 
+	pos(A,B) & 
+	A>0 
+<- 
+	do(left); 
+	do(left).
 
-+!go: left & pos(A,B) & A>0 <- do(left); do(left).
-
-+!go: left <-  -left;
-			   +down(3);
-			   do(down); do(down).
-+!go: r <- 
--r;
-+down(3);
-do(down);do(down).
++!go: 
+	left 
+<-  
+	-left;
+   +down(3);
+   do(down); 
+   do(down).
 
 
-+!go: down(1) & pos(A,B) & A==0 <- 
++!go: 
+	r 
+<- 
+	-r;
+	+down(3);
+	do(down);
+	do(down).
+
++!go: 
+	down(1) & 
+	pos(A,B) & 
+	A==0 
+<- 
 	-down(1);
 	+r;
-	do(down); do(down).
-+!go: down(1) & pos(A,B) & right(C) & A==C-1 
+	do(down); 
+	do(down).
+
++!go: 
+	down(1) & 
+	pos(A,B) & 
+	right(C) & 
+	A==C-1 
 <- 
 	-down(1);
 	+left;
-	do(down);do(down).
+	do(down);
+	do(down).
 
-+!go: down(1)
++!go: 
+	down(1)
 <-
 	-down(1);
 	+left;
-	do(left);do(left).
+	do(left);
+	do(left).
 			   
-+!go: down(X) & X\==1 
++!go: 
+	down(X) & 
+	X\==1 
 <- 
 	-down(X);
 	+down(X-1);
-	do(down); do(down).
+	do(down); 
+	do(down).
 

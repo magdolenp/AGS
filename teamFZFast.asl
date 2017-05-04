@@ -143,6 +143,7 @@
 <-
 	.print(X,Y);
 	myLib.myIA(X, Y, R);
+	if (R == skip) { -unvisited(X,Y); };
 	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
 	do(R).
 

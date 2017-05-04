@@ -1,19 +1,22 @@
-
 +step(0)
 <- 
 	.println("START");
 	?grid_size(A,B);
+	/*for( .range(I,0,A-1)){
+		for( .range(J,0,B-1)){
+			+unvisited(I,J);
+		}
+	};*/
 	+right(A);
 	+down(B);
 	+r;
 	do(skip).
-
 /*
 +step(I): 
 	pos(X,Y)
 <-
-	do(skip).*/
-
+	do(skip).
+*/
 +step(I): 
 	pos(X,Y)
 <-
@@ -23,7 +26,12 @@
 		!move_to(Item_X, Item_Y)
 	}
 	else{
-		!go
+		if (unvisited(X,Y)) {
+			!move_to(Item_X, Item_Y)
+		}
+		else {
+			!go
+		}
 	}.
 
 +step(I): moves_per_round(1) 
@@ -61,7 +69,7 @@
 		MinX = X; 
 		MinY = Y
 	}.
-
+	
 +!findClosest(CurrMin, Min, MinX, MinY): 
 	true 
 <- 
@@ -167,6 +175,7 @@
 			!updateGold(X+I,Y+J);
 			!updateWood(X+I,Y+J);
 			!updateObstacle(X+I,Y+J);
+			-unvisited(X+I,Y+J);
 		}
 	}.
 

@@ -1,6 +1,6 @@
 
 // tento radek staci zakomentovat a bude se spoustet i Middle
-//+step(_): true <- do(skip);do(skip).
++step(_): true <- do(skip);do(skip).
 // k chybe dochazi pri volani myIA v jednom z moveTo (null pointer ex v A*)
 
 
@@ -89,6 +89,12 @@
 		MinX = X; 
 		MinY = Y
 	}.
+	
++!findClosest(CurrMin, Min, MinX, MinY): 
+	((carrying_gold(G) & G > 0) | (carrying_wood(W) & W > 0))
+<-
+ 	?depot(MinX, MinY);
+ 	Min = 42.
 	
 +!findClosest(CurrMin, Min, MinX, MinY): 
 	true 
@@ -238,7 +244,7 @@
 <- 
 	do(skip).
 
-@atstepslow[atomic] +!atomStep(X,Y): 
+@atstepmid[atomic] +!atomStep(X,Y): 
 	true 
 <-
 	myLib.myIA(X, Y, R);
@@ -254,31 +260,6 @@
 <-
 	do(drop).
 
-/*
-+!move_to(Item_X,Item_Y):
-	pos(X,Y) &
-	X < Item_X
-<-
-	do(right).
-
-+!move_to(Item_X,Item_Y):
-	pos(X,Y) &
-	X > Item_X
-<-
-	do(left).
-
-+!move_to(Item_X,Item_Y):
-	pos(X,Y) &
-	Y < Item_Y
-<-
-	do(down).
-
-+!move_to(Item_X,Item_Y):
-	pos(X,Y) &
-	Y > Item_Y
-<-
-	do(up).
-*/
 
 @atmove[atomic] +!move_to(Item_X,Item_Y):
 	pos(X,Y) &
@@ -293,8 +274,10 @@
 	.send(A, achieve, clearHelp(X,Y));
 	.send(B, achieve, clearHelp(X,Y)).
 
+
 +!move_to(Item_X,Item_Y):
 	pos(X,Y) &
+	not(depot(X,Y)) &
 	X == Item_X &
 	Y == Item_Y	&
 	friend(A) &
@@ -405,3 +388,4 @@
 	+down(X-1);
 	do(down); 
 	do(down).
+

@@ -55,17 +55,6 @@ public class myIA extends DefaultInternalAction {
             }
         }
 
-        System.out.println(" >> A STAR <<");
-        System.out.println(sX);
-        System.out.println(sY);
-        System.out.println(eX);
-        System.out.println(eY);
-        System.out.println(sizeX);
-        System.out.println(sizeY);
-        for (int k = 0; k < blocked.size(); k++) {
-            System.out.println("BLOCKED" + blocked.get(k));        
-        }
-
         // start X, start Y, end X, end Y, map size X, map size Y
         AStar aStar = new AStar();
         String direction = aStar.run(sX, sY, eX, eY, sizeX, sizeY, blocked);

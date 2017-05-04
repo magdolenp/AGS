@@ -1,14 +1,17 @@
 
 // tento radek staci zakomentovat a bude se spoustet i Middle
 //+step(_): true <- do(skip);do(skip).
-// k chybe dochazi pri volani myIA v jednom z moveTo (null pointer ex v A*)
-
 
 
 +step(0) 
 <- 
 	.println("START");
 	?grid_size(A,B);
+	for ( .range(I, 0, A-1)) {
+		for ( .range(J, 0, B-1)) {
+			+unvisited(I, J);
+		}
+	};
 	+right(A);
 	+down(B);
 	+r;
@@ -16,23 +19,32 @@
 	do(skip).
 
 +step(I): 
-	pos(X,Y)
+	unvisited(X, Y)
 <-
-	!updateMap(X,Y);
+	!updateMap;
 	!findClosest(9999, M, Item_X, Item_Y);
 	if (Item_X > -1 & Item_Y > -1) {
 		.print("MOVETO");
 		!move_to(Item_X, Item_Y)
 	}
 	else {
-		.print("GOING");
-		!go
+		!atomStep(X, Y);
+		!updateMap;
+		!atomStep(X,Y)
 	}.
 
-+step(I): 
-	moves_per_round(1) 
-<- 
-	!go.
++step(I):
+	true
+<-
+	!updateMap;
+	!findClosest(9999, M, Item_X, Item_Y);
+	if (Item_X > -1 & Item_Y > -1) {
+		!move_to(Item_X, Item_Y)
+	}
+	else {
+		.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
+		do(skip)
+	}.
 
 
 +!findClosest(CurrMin, Min, MinX, MinY): 
@@ -193,16 +205,29 @@
 +!updateObstacle(_,_).
 
 
-+!updateMap(X,Y): 
-	true
++!updateMap:
+	pos(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
 <-
 	for( .range(I,-1,1)){
 		for( .range(J,-1,1)){
 			!updateGold(X+I,Y+J);
 			!updateWood(X+I,Y+J);
 			!updateObstacle(X+I,Y+J);
+			-unvisited(X+I,Y+J);
+			.send(A, achieve, visited(X+I,Y+J));
+			.send(B, achieve, visited(X+I,Y+J));
 		}
 	}.
+
+
++!visited(X, Y):
+	true
+<-
+	.abolish(unvisited(X, Y)).
+
 
 
 +gold(X,Y): 
@@ -240,7 +265,8 @@
 
 
 +!atomStep(X,Y): 
-	pos(X,Y) 
+	pos(X,Y) &
+	not(unvisited(X,Y))
 <- 
 	do(skip).
 
@@ -248,6 +274,7 @@
 	true 
 <-
 	myLib.myIA(X, Y, R);
+	if (R == skip) { -unvisited(X,Y); };
 	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
 	do(R).
 

@@ -3,9 +3,9 @@
 <- 
 	.println("START");
 	?grid_size(A,B);
-	for( .range(I,0,A-1)){
-		for( .range(J,0,B-1)){
-			+unvisited(I,J);
+	for ( .range(I, 0, A-1)) {
+		for ( .range(J, 0, B-1)) {
+			+unvisited(I, J);
 		}
 	};
 	+right(A);
@@ -14,13 +14,13 @@
 	do(skip);
 	do(skip);
 	do(skip).
-/*
+
 +step(I): 
 	needHelp(X, Y) & 
 	depot(X, Y)
 <-
 	!clearHelp(X, Y);
-	+step(I).*/
+	+step(I).
 
 +step(I): 
 	needHelp(X,Y) & 
@@ -130,7 +130,11 @@
 +!updateObstacle(_,_).
 
 
-+!updateMap: pos(X,Y)
++!updateMap:
+	pos(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
 <-
 	for( .range(I,-1,1)){
 		for( .range(J,-1,1)){
@@ -138,19 +142,27 @@
 			!updateWood(X+I,Y+J);
 			!updateObstacle(X+I,Y+J);
 			-unvisited(X+I,Y+J);
+			.send(A, achieve, visited(X+I,Y+J));
+			.send(B, achieve, visited(X+I,Y+J));
 		}
 	}.
 
 
++!visited(X, Y):
+	true
+<-
+	.abolish(unvisited(X, Y)).
+
+
 +!atomStep(X,Y): 
-	pos(X,Y) & not(unvisited(X,Y))
+	pos(X,Y) &
+	not(unvisited(X,Y))
 <- 
 	do(skip).
 
 @label[atomic] +!atomStep(X,Y): 
 	true 
 <-
-	.print(X,Y);
 	myLib.myIA(X, Y, R);
 	if (R == skip) { -unvisited(X,Y); };
 	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);

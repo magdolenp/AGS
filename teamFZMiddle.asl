@@ -1,6 +1,6 @@
 
 // tento radek staci zakomentovat a bude se spoustet i Middle
-+step(_): true <- do(skip);do(skip).
+//+step(_): true <- do(skip);do(skip).
 // k chybe dochazi pri volani myIA v jednom z moveTo (null pointer ex v A*)
 
 
@@ -306,14 +306,6 @@
 	else {
 		myLib.myIA(X, Y, R2);
 		do(R2)
-	}
-
-	?pos(X3,Y3);
-	if(X3 == X & Y3 == Y){
-		?friend(A);
-		?friend(B);
-		.send(A, tell, needHelp(X,Y));
-		.send(B, tell, needHelp(X,Y));
 	}.
 
 

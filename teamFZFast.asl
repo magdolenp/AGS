@@ -14,13 +14,22 @@
 	do(skip);
 	do(skip);
 	do(skip).
+/*
++step(I): 
+	needHelp(X, Y) & 
+	depot(X, Y)
+<-
+	!clearHelp(X, Y);
+	+step(I).*/
 
 +step(I): 
 	needHelp(X,Y) & 
 	ally(X,Y) & 
 	pos(X,Y)
 <-
-	do(drop).
+	do(skip);
+	do(skip);
+	do(skip).
 
 +step(I): 
 	needHelp(X,Y)
@@ -148,12 +157,10 @@
 	do(R).
 
 
-+!clearHelp(X,Y): 
++!clearHelp(_, _): 
 	true 
 <-
 	.abolish(needHelp(_,_)).
-
-+!clearHelp(_,_).
 
 
 +gold(X,Y): 

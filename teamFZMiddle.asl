@@ -406,3 +406,23 @@
 	do(down); 
 	do(down).
 
+
+
+
+/* TEST */
+spotted(X,Y)
+
++search:
+	true
+<-
+	for( .range(I, 1, 30)) {
+		check();
+	}
+
++check(Dist):
+	?pos(MyX, MyY);
+<-
+	?spotted(X, Y);
+	for( .range(I, -Dist, Dist)) {
+		spotted(X, Y);
+	}

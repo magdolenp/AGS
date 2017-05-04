@@ -1,8 +1,13 @@
-
+//+step(_): true <- do(skip);do(skip);do(skip).
 +step(0) 
 <- 
 	.println("START");
 	?grid_size(A,B);
+	for( .range(I,0,A-1)){
+		for( .range(J,0,B-1)){
+			+unvisited(I,J);
+		}
+	};
 	+right(A);
 	+down(B);
 	+r;
@@ -29,13 +34,24 @@
 	!updateMap.
 
 +step(I): 
-	moves_per_round(3) 
+	unvisited(X,Y)
 <- 
 	.println("idem si svoje ...........................................................................");
-	!go.
+	!atomStep(X,Y);
+	!updateMap;
+	!atomStep(X,Y);
+	!updateMap;
+	!atomStep(X,Y);
+	!updateMap.
 //+step(X): shoes(A,B) & pos(A,B) <- do(pick).
 
 //+step(X): moves_per_round(6) <- !go;!go.
+
++step(I): true <-
+	.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
+	do(skip);
+	do(skip);
+	do(skip).
 
 
 +!remMap(X,Y,Item): 
@@ -112,18 +128,20 @@
 			!updateGold(X+I,Y+J);
 			!updateWood(X+I,Y+J);
 			!updateObstacle(X+I,Y+J);
+			-unvisited(X+I,Y+J);
 		}
 	}.
 
 
 +!atomStep(X,Y): 
-	pos(X,Y) 
+	pos(X,Y) & not(unvisited(X,Y))
 <- 
 	do(skip).
 
 @label[atomic] +!atomStep(X,Y): 
 	true 
 <-
+	.print(X,Y);
 	myLib.myIA(X, Y, R);
 	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
 	do(R).

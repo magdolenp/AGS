@@ -8,10 +8,11 @@
 	+r;
 	do(skip).
 
+/*
 +step(I): 
 	pos(X,Y)
 <-
-	do(skip).
+	do(skip).*/
 
 +step(I): 
 	pos(X,Y)

@@ -5,22 +5,21 @@
 
 +step(0) 
 <-
-	.println("START");
 	?grid_size(A,B);
 	for ( .range(I, 0, A-1)) {
 		for ( .range(J, 0, B-1)) {
 			+unvisited((A-1)-I, (B-1)-J);
 		}
 	};
+
 	+right(A);
 	+down(B);
-	+r;
 	do(skip);
 	do(skip).
 
 
 +step(I): 
-	needHelp(X, Y) & 
+	needHelpShoes(X, Y) & 
 	ally(X, Y) & 
 	pos(X, Y)
 <-
@@ -29,7 +28,7 @@
 	do(skip).
 
 +step(I): 
-	needHelp(X, Y)
+	needHelpShoes(X, Y)
 <-
 	!updateMap;
 	!atomStep(X,Y);
@@ -43,14 +42,19 @@
 	!updateMap;
 	!findClosest(9999, M, Item_X, Item_Y);
 	if (Item_X > -1 & Item_Y > -1) {
-		.print("MOVETO");
 		!move_to(Item_X, Item_Y)
 	}
 	else {
 		!atomStep(X, Y);
 		!updateMap;
-		!atomStep(X,Y);
-		!updateMap;
+		if(unvisited(_,_)){
+			?unvisited(X1, Y2);
+			!atomStep(X1, Y2);
+			!updateMap;
+		}
+		else {
+			do(skip);
+		}
 	}.
 
 +step(I):
@@ -62,16 +66,20 @@
 		!move_to(Item_X, Item_Y)
 	}
 	else {
-		.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
 		do(skip);
 		do(skip);
 	}.
 
-+!clearHelp(_, _): 
++!clearHelp(_,_): 
 	true 
 <-
 	.abolish(needHelp(_,_)).
-	
+
++!clearHelpShoes(_,_): 
+	true 
+<-
+	.abolish(needHelpShoes(_,_)).
+		
 	
 +!findClosest(CurrMin, Min, MinX, MinY): 
 	carrying_capacity(C) &
@@ -90,7 +98,6 @@
 	+tested(X,Y);
 	?pos(MyX,MyY);
 	!dist(MyX, MyY, X,Y, CalcMin);
-	.print("At: ",  X, ":", Y, " Dist: ", CalcMin);
 	/*CalcMin = Y;*/
 	!findClosest(CalcMin, NewMin, NMX, NMY);
 	if (NewMin < CalcMin) {
@@ -114,7 +121,7 @@
 	+tested(X,Y);
 	?pos(MyX,MyY);
 	!dist(MyX, MyY, X,Y, CalcMin);
-	.print("At: ",  X, ":", Y, " Dist: ", CalcMin);
+
 	/*CalcMin = Y;*/
 	!findClosest(CalcMin, NewMin, NMX, NMY);
 	if (NewMin < CalcMin) {
@@ -147,27 +154,6 @@
 	true 
 <-
 	D = math.sqrt((X1-X2)*(X1-X2) + (Y1-Y2)*(Y1-Y2)).
-
-/*
-+!readyToHelp(X,Y): pos(X,Y) <-
-	.send(A, achieve, clearHelp(X,Y));
-	.send(B, achieve, clearHelp(X,Y)).
-
-+!readyToHelp(X,Y).
-*/
-
-/*
-+!updateGold(X,Y): gold(X,Y) <-+map(X,Y, gold).
-+!updateGold(X,Y): true <--map(X,Y, gold).
-
-+!updateWood(X,Y): wood(X,Y) <-+map(X,Y, wood).
-+!updateWood(X,Y): true <--map(X,Y, wood).
-*/
-
-+!clearHelp(_, _): 
-	true 
-<-
-	.abolish(needHelp(_,_)).
 
 
 +!remMap(X,Y,Item): 
@@ -352,8 +338,7 @@
 
 
 +!atomStep(X,Y): 
-	pos(X,Y) &
-	not(unvisited(X,Y))
+	pos(X,Y)
 <-
 	do(skip).
 
@@ -362,7 +347,6 @@
 <-
 	myLib.myIA(X, Y, R);
 	if (R == skip) { -unvisited(X,Y); };
-	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
 	do(R).
 
 

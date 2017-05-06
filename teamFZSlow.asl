@@ -1,6 +1,5 @@
 +step(0)
 <-
-	.println("START");
 	?grid_size(A,B);
 	for ( .range(I, 0, A-1)) {
 		for ( .range(J, 0, B-1)) {
@@ -10,7 +9,6 @@
 	+right(A);
 	+down(B);
 	+ivegotspectacles(3);
-	+r;
 	do(skip).
 
 +step(I): 
@@ -34,14 +32,9 @@
 		!move_to(Item_X, Item_Y)
 	}
 	else {
-		.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
 		do(skip)
 	}.
 	
-+!clearHelp(_, _): 
-	true 
-<-
-	.abolish(needHelp(_,_)).
 
 +!findClosest(CurrMin, Min, MinX, MinY): 
 	carrying_capacity(C) &
@@ -60,6 +53,25 @@
 	Min = 42.
 
 +!findClosest(CurrMin, Min, MinX, MinY): 
+	map(X1,Y1,spectacles) &
+	map(X2,Y2,spectacles) &
+	(X1 \== X2 | Y1 \== Y2) &
+	pos(X,Y) &
+	ivegotspectacles(3)
+<-
+	dist(X, Y, X1, Y1, D1);
+	dist(X, Y, X2, Y2, D2);
+	if(D1 < D2){
+		MinX = X1;
+		MinY = Y1;	
+	}
+	else {
+		MinX = X2;
+		MinY = Y2;		
+	}
+	Min = 42.
+
++!findClosest(CurrMin, Min, MinX, MinY): 
 	map(X,Y,Item) & 
 	(Item == gold | Item == wood) & 
 	not(tested(X,Y))  
@@ -67,7 +79,6 @@
 	+tested(X,Y);
 	?pos(MyX,MyY);
 	!dist(MyX, MyY, X,Y, CalcMin);
-	.print("At: ",  X, ":", Y, " Dist: ", CalcMin);
 	/*CalcMin = Y;*/
 	!findClosest(CalcMin, NewMin, NMX, NMY);
 	if (NewMin < CalcMin) {
@@ -95,22 +106,7 @@
 <-
 	D = math.sqrt((X1-X2)*(X1-X2) + (Y1-Y2)*(Y1-Y2)).
 
-/*
-+!readyToHelp(X,Y): pos(X,Y) <-
-	.send(A, achieve, clearHelp(X,Y));
-	.send(B, achieve, clearHelp(X,Y)).
-
-+!readyToHelp(X,Y).
-*/
-
-/*
-+!updateGold(X,Y): gold(X,Y) <-+map(X,Y, gold).
-+!updateGold(X,Y): true <--map(X,Y, gold).
-
-+!updateWood(X,Y): wood(X,Y) <-+map(X,Y, wood).
-+!updateWood(X,Y): true <--map(X,Y, wood).
-*/
-
++!clearHelpShoes(_, _).
 +!clearHelp(_, _): 
 	true 
 <-
@@ -317,7 +313,6 @@
 <-
 	myLib.myIA(X, Y, R);
 	if (R == skip) { -unvisited(X,Y); };
-	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
 	do(R).
 
 

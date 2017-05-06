@@ -1,7 +1,6 @@
 //+step(_): true <-do(skip);do(skip);do(skip).
 +step(0) 
 <-
-	.println("START");
 	?grid_size(A,B);
 	for ( .range(I, 0, A-1)) {
 		for ( .range(J, 0, B-1)) {
@@ -26,22 +25,66 @@
 	needHelp(X,Y) & 
 	ally(X,Y) & 
 	pos(X,Y) &
-	moves_per_round(Moves)
+	moves_per_round(Moves) &
+	friend(A) &
+	friend(B) &
+	A \== B
 <-
+	.send(A, achieve, clearHelpShoes(_,_));
+	.send(B, achieve, clearHelpShoes(_,_));
 	!updateMap;
 	for( .range(Iter, 1, Moves)){
 		do(skip);
 	}.
 
+// there is only one need help
 +step(I): 
 	needHelp(X,Y) &
-	moves_per_round(Moves)
+	moves_per_round(Moves) &
+	friend(A) &
+	friend(B) &
+	A \== B
 <-
+	.send(A, achieve, clearHelpShoes(_,_));
+	.send(B, achieve, clearHelpShoes(_,_));
 	!updateMap;
 	for( .range(Iter, 1, Moves)){
 		!atomStep(X,Y);
 		!updateMap;
 	}.
+
+// there are two need helps
++step(I): 
+	needHelp(X1,Y1) &
+	needHelp(X2,Y2) &
+	(X1 \== X2 | Y1 \== Y2) &
+	pos(X,Y) &
+	moves_per_round(Moves) &
+	friend(A) &
+	friend(B) &
+	A \== B
+<-
+	.send(A, achieve, clearHelpShoes(_,_));
+	.send(B, achieve, clearHelpShoes(_,_));
+
+	dist(X, Y, X1, Y1, D1);
+	dist(X, Y, X2, Y2, D2);
+
+	!updateMap;
+	for( .range(Iter, 1, Moves)){
+		if(D1 < D2){
+			!atomStep(X1,Y1);	
+		}
+		else {
+			!atomStep(X2,Y2);	
+		};
+		!updateMap;
+	}.
+
++!dist(X1,Y1, X2,Y2, D): 
+	true 
+<-
+	D = math.sqrt((X1-X2)*(X1-X2) + (Y1-Y2)*(Y1-Y2)).
 
 +step(I): 
 	map(Item_X, Item_Y, shoes) &
@@ -51,20 +94,24 @@
 	!move_to(Item_X, Item_Y).
 
 +step(I): 
-	unvisited(X,Y) &
 	moves_per_round(Moves)
 <-
 	!updateMap;
 	for( .range(Iter, 1, Moves)){
-		!atomStep(X,Y);
-		!updateMap;
+		if(unvisited(_,_)){
+			?unvisited(X,Y);
+			!atomStep(X,Y);
+			!updateMap;			
+		}
+		else{
+			do(skip);
+		}
 	}.
 
 
 +step(I): 
 	moves_per_round(Moves) 
 <-
-	.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
 	for( .range(Iter, 1, Moves)){
 		do(skip);
 	}.
@@ -208,17 +255,18 @@
 
 
 +!atomStep(X,Y): 
-	pos(X,Y) &
-	not(unvisited(X,Y))
+	pos(X,Y)
 <-
 	do(skip).
+	
 
-@label[atomic] +!atomStep(X,Y): 
+@label2[atomic] +!atomStep(X,Y): 
 	true 
 <-
 	myLib.myIA(X, Y, R);
-	if (R == skip) { -unvisited(X,Y); };
-	.print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ", X, ":", Y, "  ", R);
+	if (R == skip) { 
+		-unvisited(X,Y); 
+	};
 	do(R).
 
 
@@ -279,8 +327,8 @@
 	A \== B 
 <-
 	do(pick);
-	.send(A, achieve, clearHelp(X,Y));
-	.send(B, achieve, clearHelp(X,Y)).
+	.send(A, achieve, clearHelpShoes(_,_));
+	.send(B, achieve, clearHelpShoes(_,_)).
 
 @skipmovefast[atomic] +!move_to(Item_X, Item_Y):
 	pos(X,Y) &
@@ -291,8 +339,8 @@
 	friend(B) &
 	A \== B 
 <-
-	.send(A, tell, needHelp(X,Y));
-	.send(B, tell, needHelp(X,Y));
+	.send(A, tell, needHelpShoes(X,Y));
+	.send(B, tell, needHelpShoes(X,Y));
 	do(skip);
 	do(skip);
 	do(skip).

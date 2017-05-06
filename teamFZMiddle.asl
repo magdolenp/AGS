@@ -9,7 +9,7 @@
 	?grid_size(A,B);
 	for ( .range(I, 0, A-1)) {
 		for ( .range(J, 0, B-1)) {
-			+unvisited(I, J);
+			+unvisited((A-1)-I, (B-1)-J);
 		}
 	};
 	+right(A);

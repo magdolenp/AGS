@@ -23,13 +23,6 @@
 	+step(I).
 
 +step(I): 
-	map(Item_X, Item_Y, shoes) &
-	pos(X, Y) & 
-	moves_per_round(3)
-<-
-	!move_to(Item_X, Item_Y).
-
-+step(I): 
 	needHelp(X,Y) & 
 	ally(X,Y) & 
 	pos(X,Y) &
@@ -50,6 +43,12 @@
 		!updateMap;
 	}.
 
++step(I): 
+	map(Item_X, Item_Y, shoes) &
+	pos(X, Y) & 
+	moves_per_round(3)
+<-
+	!move_to(Item_X, Item_Y).
 
 +step(I): 
 	unvisited(X,Y) &
@@ -62,7 +61,9 @@
 	}.
 
 
-+step(I): moves_per_round(Moves) <-
++step(I): 
+	moves_per_round(Moves) 
+<-
 	.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
 	for( .range(Iter, 1, Moves)){
 		do(skip);

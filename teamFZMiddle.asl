@@ -67,7 +67,12 @@
 		do(skip);
 	}.
 
-
++!clearHelp(_, _): 
+	true 
+<-
+	.abolish(needHelp(_,_)).
+	
+	
 +!findClosest(CurrMin, Min, MinX, MinY): 
 	carrying_capacity(C) &
 	((carrying_gold(G) & C == G) | (carrying_wood(W) & C == W))
@@ -329,6 +334,14 @@
 	!inform(X,Y,shoes).
 
 
++!erase(X,Y):
+	friend(A) &
+	friend(B) &
+	A \== B
+<-
+	.send(A, achieve, remMap(X,Y,_));
+	.send(B, achieve, remMap(X,Y,_)).
+
 +!inform(X, Y, Item):
 	friend(A) &
 	friend(B) &
@@ -387,6 +400,7 @@
 <-
 	.send(A, tell, needHelp(X,Y));
 	.send(B, tell, needHelp(X,Y));
+	!erase(X,Y);
 	do(skip);
 	do(skip).
 
@@ -402,6 +416,7 @@
 	if(X2 == X & Y2 == Y){
 		.send(A, tell, needHelp(X,Y));
 		.send(B, tell, needHelp(X,Y));
+		!erase(X,Y);
 		do(skip);
 	}
 	else {

@@ -37,6 +37,11 @@
 		.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
 		do(skip)
 	}.
+	
++!clearHelp(_, _): 
+	true 
+<-
+	.abolish(needHelp(_,_)).
 
 +!findClosest(CurrMin, Min, MinX, MinY): 
 	carrying_capacity(C) &
@@ -283,6 +288,15 @@
 	!inform(X,Y,shoes).
 
 
++!erase(X,Y):
+	friend(A) &
+	friend(B) &
+	A \== B
+<-
+	.send(A, achieve, remMap(X,Y,_));
+	.send(B, achieve, remMap(X,Y,_)).
+
+
 +!inform(X, Y, Item):
 	friend(A) &
 	friend(B) &
@@ -343,6 +357,7 @@
 <-
 	.send(A, tell, needHelp(X,Y));
 	.send(B, tell, needHelp(X,Y));
+	!erase(X,Y);
 	do(skip).
 
 @atmt2[atomic] +!move_to(X,Y):

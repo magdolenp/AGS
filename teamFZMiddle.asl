@@ -1,10 +1,10 @@
 
 // tento radek staci zakomentovat a bude se spoustet i Middle
-//+step(_): true <- do(skip);do(skip).
+//+step(_): true <-do(skip);do(skip).
 
 
 +step(0) 
-<- 
+<-
 	.println("START");
 	?grid_size(A,B);
 	for ( .range(I, 0, A-1)) {
@@ -18,6 +18,25 @@
 	do(skip);
 	do(skip).
 
+
++step(I): 
+	needHelp(X, Y) & 
+	ally(X, Y) & 
+	pos(X, Y)
+<-
+	!updateMap;
+	do(skip);
+	do(skip).
+
++step(I): 
+	needHelp(X, Y)
+<-
+	!updateMap;
+	!atomStep(X,Y);
+	!updateMap;
+	!atomStep(X,Y);
+	!updateMap.
+
 +step(I): 
 	unvisited(X, Y)
 <-
@@ -30,7 +49,8 @@
 	else {
 		!atomStep(X, Y);
 		!updateMap;
-		!atomStep(X,Y)
+		!atomStep(X,Y);
+		!updateMap;
 	}.
 
 +step(I):
@@ -43,7 +63,8 @@
 	}
 	else {
 		.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
-		do(skip)
+		do(skip);
+		do(skip);
 	}.
 
 
@@ -110,7 +131,7 @@
 	
 +!findClosest(CurrMin, Min, MinX, MinY): 
 	true 
-<- 
+<-
 	Min = CurrMin; 
 	MinX = -1; 
 	MinY = -1; 
@@ -131,16 +152,22 @@
 */
 
 /*
-+!updateGold(X,Y): gold(X,Y) <- +map(X,Y, gold).
-+!updateGold(X,Y): true <- -map(X,Y, gold).
++!updateGold(X,Y): gold(X,Y) <-+map(X,Y, gold).
++!updateGold(X,Y): true <--map(X,Y, gold).
 
-+!updateWood(X,Y): wood(X,Y) <- +map(X,Y, wood).
-+!updateWood(X,Y): true <- -map(X,Y, wood).
++!updateWood(X,Y): wood(X,Y) <-+map(X,Y, wood).
++!updateWood(X,Y): true <--map(X,Y, wood).
 */
+
++!clearHelp(_, _): 
+	true 
+<-
+	.abolish(needHelp(_,_)).
+
 
 +!remMap(X,Y,Item): 
 	map(X,Y,Item) 
-<- 
+<-
 	.abolish(map(X,Y,Item)).
 
 +!remMap(_,_,_).
@@ -151,7 +178,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	+map(X,Y, gold);
 	.send(A, tell, map(X,Y, gold));
 	.send(B, tell, map(X,Y, gold)).
@@ -161,7 +188,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	.abolish(map(X,Y, gold));
 	.send(A, achieve, remMap(X,Y, gold));
 	.send(B, achieve, remMap(X,Y, gold)).
@@ -174,7 +201,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	+map(X,Y, wood);
 	.send(A, tell, map(X,Y, wood));
 	.send(B, tell, map(X,Y, wood)).
@@ -184,7 +211,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	.abolish(map(X,Y, wood));
 	.send(A, achieve, remMap(X,Y, wood));
 	.send(B, achieve, remMap(X,Y, wood)).
@@ -197,7 +224,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	+map(X,Y, obstacle);
 	.send(A, tell, map(X,Y, obstacle));
 	.send(B, tell, map(X,Y, obstacle)).
@@ -205,7 +232,42 @@
 +!updateObstacle(_,_).
 
 
-@update[atomic]+!updateMap:
++!updateShoes(X,Y):
+	map(X,Y, shoes) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+<-
+	.abolish(map(X,Y, shoes));
+	.send(A, achieve, remMap(X,Y, shoes));
+	.send(B, achieve, remMap(X,Y, shoes)).
+
++!updateShoes(_,_).
+
++!updateSpectacles(X,Y):
+	spectacles(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+<-
+	+map(X,Y, spectacles);
+	.send(A, tell, map(X,Y, spectacles));
+	.send(B, tell, map(X,Y, spectacles)).
+
++!updateSpectacles(X,Y):
+	map(X,Y, spectacles) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+<-
+	.abolish(map(X,Y, spectacles));
+	.send(A, achieve, remMap(X,Y, spectacles));
+	.send(B, achieve, remMap(X,Y, spectacles)).
+
++!updateSpectacles(_,_).
+
+
+@update[atomic] +!updateMap:
 	pos(X,Y) &
 	friend(A) &
 	friend(B) &
@@ -216,6 +278,8 @@
 			!updateGold(X+I,Y+J);
 			!updateWood(X+I,Y+J);
 			!updateObstacle(X+I,Y+J);
+			!updateShoes(X+I,Y+J);
+			!updateSpectacles(X+I,Y+J);
 			-unvisited(X+I,Y+J);
 			.send(A, achieve, visited(X+I,Y+J));
 			.send(B, achieve, visited(X+I,Y+J));
@@ -232,28 +296,38 @@
 
 +gold(X,Y): 
 	true
-<- 
+<-
 	+map(X,Y,gold);
 	!inform(X,Y,gold).  
 
 
 +wood(X,Y): 
 	true
-<- 
+<-
 	+map(X,Y,wood);
 	!inform(X,Y,wood).
 
-// +spectacles(X,Y): 
-// 	+map(X,Y,spectacles).
+
++spectacles(X,Y): 
+	true
+<-
+	+map(X,Y,spectacles);
+	!inform(X,Y,spectacles).
 
 
-// +obstacle(X,Y): 
-// 	+map(X,Y,obstacle);
-// 	!inform(X,Y,obstacle).
++obstacle(X,Y): 
+	true
+<-	
+	+map(X,Y,obstacle);
+	!inform(X,Y,obstacle).
 
-// +shoes(X,Y): 
-// 	+map(X,Y,shoes);
-// 	!inform(X,Y,shoes).
+
++shoes(X,Y): 
+	true
+<-
+	+map(X,Y,shoes);
+	!inform(X,Y,shoes).
+
 
 +!inform(X, Y, Item):
 	friend(A) &
@@ -267,7 +341,7 @@
 +!atomStep(X,Y): 
 	pos(X,Y) &
 	not(unvisited(X,Y))
-<- 
+<-
 	do(skip).
 
 @atstepmid[atomic] +!atomStep(X,Y): 
@@ -317,20 +391,21 @@
 	do(skip).
 
 @atmt2[atomic] +!move_to(X,Y):
-	true
+	friend(A) &
+	friend(B) &
+	A \== B 
 <-
 	myLib.myIA(X, Y, R);
 	do(R);
-
+	!updateMap;
 	?pos(X2,Y2);
 	if(X2 == X & Y2 == Y){
-		?friend(A);
-		?friend(B);
 		.send(A, tell, needHelp(X,Y));
 		.send(B, tell, needHelp(X,Y));
 		do(skip);
 	}
 	else {
 		myLib.myIA(X, Y, R2);
-		do(R2)
+		do(R2);
+		!updateMap;
 	}.

@@ -1,6 +1,6 @@
-//+step(_): true <- do(skip);do(skip);do(skip).
+//+step(_): true <-do(skip);do(skip);do(skip).
 +step(0) 
-<- 
+<-
 	.println("START");
 	?grid_size(A,B);
 	for ( .range(I, 0, A-1)) {
@@ -23,49 +23,55 @@
 	+step(I).
 
 +step(I): 
+	map(Item_X, Item_Y, shoes) &
+	pos(X, Y) & 
+	moves_per_round(3)
+<-
+	!move_to(Item_X, Item_Y).
+
++step(I): 
 	needHelp(X,Y) & 
 	ally(X,Y) & 
-	pos(X,Y)
+	pos(X,Y) &
+	moves_per_round(Moves)
 <-
-	do(skip);
-	do(skip);
-	do(skip).
+	!updateMap;
+	for( .range(Iter, 1, Moves)){
+		do(skip);
+	}.
 
 +step(I): 
-	needHelp(X,Y)
+	needHelp(X,Y) &
+	moves_per_round(Moves)
 <-
-	.println("ragujemragujemragujemragujemragujemragujemragujemragujemragujemragujemv ");
-	!atomStep(X,Y);
 	!updateMap;
-	!atomStep(X,Y);
-	!updateMap;
-	!atomStep(X,Y);
-	!updateMap.
+	for( .range(Iter, 1, Moves)){
+		!atomStep(X,Y);
+		!updateMap;
+	}.
+
 
 +step(I): 
-	unvisited(X,Y)
-<- 
-	.println("idem si svoje ...........................................................................");
-	!atomStep(X,Y);
+	unvisited(X,Y) &
+	moves_per_round(Moves)
+<-
 	!updateMap;
-	!atomStep(X,Y);
-	!updateMap;
-	!atomStep(X,Y);
-	!updateMap.
-//+step(X): shoes(A,B) & pos(A,B) <- do(pick).
+	for( .range(Iter, 1, Moves)){
+		!atomStep(X,Y);
+		!updateMap;
+	}.
 
-//+step(X): moves_per_round(6) <- !go;!go.
 
-+step(I): true <-
++step(I): moves_per_round(Moves) <-
 	.println("KONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONECKONEC");
-	do(skip);
-	do(skip);
-	do(skip).
+	for( .range(Iter, 1, Moves)){
+		do(skip);
+	}.
 
 
 +!remMap(X,Y,Item): 
 	map(X,Y,Item) 
-<- 
+<-
 	.abolish(map(X,Y,Item)).
 
 +!remMap(_,_,_).
@@ -76,7 +82,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	+map(X,Y, gold);
 	.send(A, tell, map(X,Y, gold));
 	.send(B, tell, map(X,Y, gold)).
@@ -86,7 +92,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	.abolish(map(X,Y, gold));
 	.send(A, achieve, remMap(X,Y, gold));
 	.send(B, achieve, remMap(X,Y, gold)).
@@ -99,7 +105,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	+map(X,Y, wood);
 	.send(A, tell, map(X,Y, wood));
 	.send(B, tell, map(X,Y, wood)).
@@ -122,13 +128,57 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	+map(X,Y, obstacle);
 	.send(A, tell, map(X,Y, obstacle));
 	.send(B, tell, map(X,Y, obstacle)).
 
 +!updateObstacle(_,_).
 
+
++!updateShoes(X,Y):
+	shoes(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+<-
+	+map(X,Y, shoes);
+	.send(A, tell, map(X,Y, shoes));
+	.send(B, tell, map(X,Y, shoes)).
+
++!updateShoes(X,Y):
+	map(X,Y, shoes) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+<-
+	.abolish(map(X,Y, shoes));
+	.send(A, achieve, remMap(X,Y, shoes));
+	.send(B, achieve, remMap(X,Y, shoes)).
+
++!updateShoes(_,_).
+
++!updateSpectacles(X,Y):
+	spectacles(X,Y) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+<-
+	+map(X,Y, spectacles);
+	.send(A, tell, map(X,Y, spectacles));
+	.send(B, tell, map(X,Y, spectacles)).
+
++!updateSpectacles(X,Y):
+	map(X,Y, spectacles) &
+	friend(A) &
+	friend(B) &
+	A \== B 
+<-
+	.abolish(map(X,Y, spectacles));
+	.send(A, achieve, remMap(X,Y, spectacles));
+	.send(B, achieve, remMap(X,Y, spectacles)).
+
++!updateSpectacles(_,_).
 
 @update[atomic] +!updateMap:
 	pos(X,Y) &
@@ -141,6 +191,8 @@
 			!updateGold(X+I,Y+J);
 			!updateWood(X+I,Y+J);
 			!updateObstacle(X+I,Y+J);
+			!updateShoes(X+I,Y+J);
+			!updateSpectacles(X+I,Y+J);
 			-unvisited(X+I,Y+J);
 			.send(A, achieve, visited(X+I,Y+J));
 			.send(B, achieve, visited(X+I,Y+J));
@@ -157,7 +209,7 @@
 +!atomStep(X,Y): 
 	pos(X,Y) &
 	not(unvisited(X,Y))
-<- 
+<-
 	do(skip).
 
 @label[atomic] +!atomStep(X,Y): 
@@ -177,28 +229,35 @@
 
 +gold(X,Y): 
 	true
-<- 
+<-
 	+map(X,Y,gold);
 	!inform(X,Y,gold).  
 
 
 +wood(X,Y): 
 	true
-<- 
+<-
 	+map(X,Y,wood);
 	!inform(X,Y,wood).
 
-// +spectacles(X,Y): 
-// 	+map(X,Y,spectacles).
++spectacles(X,Y): 
+	true
+<-
+	+map(X,Y,spectacles);
+	!inform(X,Y,spectacles).
 
 
-// +obstacle(X,Y): 
-// 	+map(X,Y,obstacle);
-// 	!inform(X,Y,obstacle).
++obstacle(X,Y): 
+	true
+<-
+	+map(X,Y,obstacle);
+	!inform(X,Y,obstacle).
 
-// +shoes(X,Y): 
-// 	+map(X,Y,shoes);
-// 	!inform(X,Y,shoes).
++shoes(X,Y): 
+	true
+<-
+	+map(X,Y,shoes).
+
 
 +!inform(X, Y, Item):
 	friend(A) &
@@ -209,61 +268,57 @@
 	.send(B, tell, map(X,Y,Item)).
 
 
-/*
-+!checkPosition(X,Y): 
+@pickmovefast[atomic] +!move_to(Item_X,Item_Y):
 	pos(X,Y) &
+	ally(X,Y) &
+	X == Item_X &
+	Y == Item_Y	&
 	friend(A) &
 	friend(B) &
 	A \== B 
-	<- 
-	.abolish(needHelp(X,Y)).
-
-+!checkPosition(_,_).
-*/
-
-
-
-/*
-+do_need_help[source(Agent)]: true
 <-
-	+needHelp(_,_,Agent).
+	do(pick);
+	.send(A, achieve, clearHelp(X,Y));
+	.send(B, achieve, clearHelp(X,Y)).
 
-+dont_need_help[source(Agent)]: true
-<-
-	.abolish(needHelp(_,_,Agent)).
-*/
-
-
- 
- //do(right);do(right);do(right);do(left);do(left);do(left).
-
-+!move_to(Item_X,Item_Y):
+@skipmovefast[atomic] +!move_to(Item_X, Item_Y):
 	pos(X,Y) &
-	X < Item_X
-<-
-	do(right).
-
-+!move_to(Item_X,Item_Y):
-	pos(X,Y) &
-	X > Item_X
-<-
-	do(left).
-
-+!move_to(Item_X,Item_Y):
-	pos(X,Y) &
-	Y < Item_Y
-<-
-	do(down).
-
-+!move_to(Item_X,Item_Y):
-	pos(X,Y) &
-	Y > Item_Y
-<-
-	do(up).
-
-+!move_to(Item_X,Item_Y):
-	pos(X,Y) &
+	// ally(X,Y) &
 	X == Item_X &
-	Y == Item_Y
+	Y == Item_Y	&
+	friend(A) &
+	friend(B) &
+	A \== B 
 <-
+	.send(A, tell, needHelp(X,Y));
+	.send(B, tell, needHelp(X,Y));
+	do(skip);
+	do(skip);
 	do(skip).
+
+@atmt2[atomic] +!move_to(Item_X, Item_Y):
+	true
+<-
+	myLib.myIA(Item_X, Item_Y, R1);
+	do(R1);
+	!updateMap;
+	
+	?pos(X1, Y1);
+	if(X1 == Item_X & Y1 == Item_Y){
+		do(skip);
+	} 
+	else {
+		myLib.myIA(Item_X, Item_Y, R2);
+		do(R2);
+		!updateMap;
+	}
+	
+	?pos(X2, Y2);
+	if(X2 == Item_X & Y2 == Item_Y){
+		do(skip);
+	} 
+	else {
+		myLib.myIA(Item_X, Item_Y, R3);
+		do(R3);
+		!updateMap;
+	}.

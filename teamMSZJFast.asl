@@ -1,3 +1,10 @@
+/*
+Patrik Magdolen	- xmagdo01
+Juro Sojcak		- xsojca00
+Filip Zelnicek	- xzelni00
+Matous Jezersky	- xjezer01
+*/
+
 //+step(_): true <-do(skip);do(skip);do(skip).
 +step(0) 
 <-

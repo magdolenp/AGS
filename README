@@ -1,4 +1,13 @@
 AGS projekt 2016/2017
 =====================
 
-...
+Autoři:
+Patrik Magdolen	- xmagdo01
+Juro Sojčák		- xsojca00
+Filip Zelníček	- xzelni00
+Matous Jezerský	- xjezer01
+
+
+Kódy agentů jsou uloženy v souborech teamMSZJ<agent>.asl, kde pro každého z nich je <agent> buďto Slow, Middle nebo Fast.
+Hledání cesty je implementováno v jazyce Java algoritmem A*. Tento kód je obsažen ve složce myLib, která musí být přiložena k souborům agentů,
+aby mohli volat metody z této knihovny.

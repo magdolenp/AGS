@@ -140,7 +140,7 @@
 	.send(B, tell, map(X,Y, wood)).
 
 +!updateWood(X,Y):
-	map(X,Y, gold) &
+	map(X,Y, wood) &
 	friend(A) &
 	friend(B) &
 	A \== B 
@@ -165,7 +165,7 @@
 +!updateObstacle(_,_).
 
 
-+!updateMap:
+@update[atomic]+!updateMap:
 	pos(X,Y) &
 	friend(A) &
 	friend(B) &

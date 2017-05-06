@@ -109,7 +109,7 @@
 	friend(A) &
 	friend(B) &
 	A \== B 
-<- 
+<-
 	.abolish(map(X,Y, wood));
 	.send(A, achieve, remMap(X,Y, wood));
 	.send(B, achieve, remMap(X,Y, wood)).
@@ -130,7 +130,7 @@
 +!updateObstacle(_,_).
 
 
-+!updateMap:
+@update[atomic] +!updateMap:
 	pos(X,Y) &
 	friend(A) &
 	friend(B) &

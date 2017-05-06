@@ -205,7 +205,7 @@
 +!updateObstacle(_,_).
 
 
-+!updateMap:
+@update[atomic]+!updateMap:
 	pos(X,Y) &
 	friend(A) &
 	friend(B) &
